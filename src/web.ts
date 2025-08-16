@@ -8,7 +8,7 @@ import type {
 } from './definitions';
 
 export class LiveActivitiesWeb extends WebPlugin implements LiveActivitiesPlugin {
-  startActivity(_: LiveActivitiesOptions): Promise<{ activityId: string }> {
+  startActivity(_: LiveActivitiesOptions): Promise<{ activityId: string, token: string }> {
     throw new Error('Method not implemented.');
   }
   updateActivity(_: UpdateActivityOptions): Promise<void> {
