@@ -3,6 +3,7 @@ import type { EndActivityOptions, LiveActivitiesOptions, LiveActivitiesPlugin, U
 export declare class LiveActivitiesWeb extends WebPlugin implements LiveActivitiesPlugin {
     startActivity(_: LiveActivitiesOptions): Promise<{
         activityId: string;
+        token: string;
     }>;
     updateActivity(_: UpdateActivityOptions): Promise<void>;
     endActivity(_: EndActivityOptions): Promise<void>;

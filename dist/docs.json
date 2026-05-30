@@ -7,7 +7,7 @@
     "methods": [
       {
         "name": "startActivity",
-        "signature": "(options: LiveActivitiesOptions) => any",
+        "signature": "(options: LiveActivitiesOptions) => Promise<{ activityId: string; token: string; }>",
         "parameters": [
           {
             "name": "options",
@@ -15,7 +15,7 @@
             "type": "LiveActivitiesOptions"
           }
         ],
-        "returns": "any",
+        "returns": "Promise<{ activityId: string; token: string; }>",
         "tags": [
           {
             "name": "param",
@@ -34,7 +34,7 @@
       },
       {
         "name": "updateActivity",
-        "signature": "(options: UpdateActivityOptions) => any",
+        "signature": "(options: UpdateActivityOptions) => Promise<void>",
         "parameters": [
           {
             "name": "options",
@@ -42,7 +42,7 @@
             "type": "UpdateActivityOptions"
           }
         ],
-        "returns": "any",
+        "returns": "Promise<void>",
         "tags": [
           {
             "name": "param",
@@ -61,7 +61,7 @@
       },
       {
         "name": "endActivity",
-        "signature": "(options: EndActivityOptions) => any",
+        "signature": "(options: EndActivityOptions) => Promise<void>",
         "parameters": [
           {
             "name": "options",
@@ -69,7 +69,7 @@
             "type": "EndActivityOptions"
           }
         ],
-        "returns": "any",
+        "returns": "Promise<void>",
         "tags": [
           {
             "name": "param",
@@ -88,9 +88,9 @@
       },
       {
         "name": "getAllActivities",
-        "signature": "() => any",
+        "signature": "() => Promise<{ activities: LiveActivitiesOptions[]; }>",
         "parameters": [],
-        "returns": "any",
+        "returns": "Promise<{ activities: LiveActivitiesOptions[]; }>",
         "tags": [
           {
             "name": "returns",
@@ -105,7 +105,7 @@
       },
       {
         "name": "saveImage",
-        "signature": "(options: { imageData: string; name: string; compressionQuality?: number; }) => any",
+        "signature": "(options: { imageData: string; name: string; compressionQuality?: number; }) => Promise<{ success: boolean; imageName: string; }>",
         "parameters": [
           {
             "name": "options",
@@ -113,7 +113,7 @@
             "type": "{ imageData: string; name: string; compressionQuality?: number | undefined; }"
           }
         ],
-        "returns": "any",
+        "returns": "Promise<{ success: boolean; imageName: string; }>",
         "tags": [
           {
             "name": "param",
@@ -130,7 +130,7 @@
       },
       {
         "name": "removeImage",
-        "signature": "(options: { name: string; }) => any",
+        "signature": "(options: { name: string; }) => Promise<{ success: boolean; }>",
         "parameters": [
           {
             "name": "options",
@@ -138,7 +138,7 @@
             "type": "{ name: string; }"
           }
         ],
-        "returns": "any",
+        "returns": "Promise<{ success: boolean; }>",
         "tags": [
           {
             "name": "param",
@@ -155,9 +155,9 @@
       },
       {
         "name": "listImages",
-        "signature": "() => any",
+        "signature": "() => Promise<{ images: string[]; }>",
         "parameters": [],
-        "returns": "any",
+        "returns": "Promise<{ images: string[]; }>",
         "tags": [
           {
             "name": "returns",
@@ -170,9 +170,9 @@
       },
       {
         "name": "cleanupImages",
-        "signature": "() => any",
+        "signature": "() => Promise<void>",
         "parameters": [],
-        "returns": "any",
+        "returns": "Promise<void>",
         "tags": [
           {
             "name": "returns",
@@ -375,11 +375,25 @@
       "docs": "Utility type to make complex types more readable in IntelliSense",
       "types": [
         {
-          "text": "{\n  [K in keyof T]: Prettify<T[K]>;\n} & {}",
+          "text": "{\n  [K in keyof T]: Prettify<T[K]>;\n} & NonNullable<unknown>",
           "complexTypes": [
             "T",
             "Prettify",
-            "K"
+            "K",
+            "NonNullable"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "NonNullable",
+      "slug": "nonnullable",
+      "docs": "Exclude null and undefined from T",
+      "types": [
+        {
+          "text": "T extends null | undefined ? never : T",
+          "complexTypes": [
+            "T"
           ]
         }
       ]
@@ -1077,10 +1091,8 @@
           "complexTypes": []
         },
         {
-          "text": "{ data: Array<{ x: number; y: number }> }",
-          "complexTypes": [
-            "Array"
-          ]
+          "text": "{ data: { x: number; y: number }[] }",
+          "complexTypes": []
         },
         {
           "text": "{ width: number }",
@@ -1300,6 +1312,20 @@
           "text": "{\n  /** @property widgetUrl - URL for the widget */\n  widgetUrl: string;\n  /** @property backgroundTint - Background color for the widget */\n  backgroundTint?: ColorString;\n  /** @property systemActionForegroundColor - Foreground color for system actions */\n  systemActionForegroundColor?: ColorString;\n  /** @property keyLineTint - Color for the key line */\n  keyLineTint?: ColorString;\n}",
           "complexTypes": [
             "ColorString"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Record",
+      "slug": "record",
+      "docs": "Construct a type with a set of properties K of type T",
+      "types": [
+        {
+          "text": "{\r\n    [P in K]: T;\r\n}",
+          "complexTypes": [
+            "K",
+            "T"
           ]
         }
       ]

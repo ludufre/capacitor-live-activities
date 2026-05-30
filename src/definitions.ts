@@ -3,7 +3,7 @@
  */
 type Prettify<T> = {
   [K in keyof T]: Prettify<T[K]>;
-} & {};
+} & NonNullable<unknown>;
 
 /**
  * Main interface for Live Activity plugin functionality
@@ -14,7 +14,7 @@ export interface LiveActivitiesPlugin {
    * @param options Configuration options for the Live Activity
    * @returns Promise with the generated activity ID
    */
-  startActivity(options: LiveActivitiesOptions): Promise<{ activityId: string }>;
+  startActivity(options: LiveActivitiesOptions): Promise<{ activityId: string; token: string }>;
 
   /**
    * Update an existing Live Activity
@@ -629,7 +629,7 @@ type ChartPropertyObject =
   /** @property type - Type of chart (e.g., "line", "bar", "pie") @example { type: "line" } */
   | { type: 'line' | 'bar' | 'pie' | 'area' | 'scatter' }
   /** @property data - Data series for the chart @example { data: [{ x: 1, y: 2 }, { x: 2, y: 3 }] } */
-  | { data: Array<{ x: number; y: number }> }
+  | { data: { x: number; y: number }[] }
   /** @property width - Width of the chart @example { width: 300 } */
   | { width: number }
   /** @property height - Height of the chart @example { height: 200 } */
@@ -716,7 +716,6 @@ type SpacerPropertyObject =
   | BasePropertyObject
   /** @property minLength - Minimum spacing @example { minLength: 8 } */
   | { minLength: number };
-
 
 /**
  * Gauge-specific property objects

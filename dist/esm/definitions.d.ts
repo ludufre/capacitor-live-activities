@@ -3,7 +3,7 @@
  */
 type Prettify<T> = {
     [K in keyof T]: Prettify<T[K]>;
-} & {};
+} & NonNullable<unknown>;
 /**
  * Main interface for Live Activity plugin functionality
  */
@@ -15,6 +15,7 @@ export interface LiveActivitiesPlugin {
      */
     startActivity(options: LiveActivitiesOptions): Promise<{
         activityId: string;
+        token: string;
     }>;
     /**
      * Update an existing Live Activity
@@ -656,10 +657,10 @@ type ChartPropertyObject = BasePropertyObject
 }
 /** @property data - Data series for the chart @example { data: [{ x: 1, y: 2 }, { x: 2, y: 3 }] } */
  | {
-    data: Array<{
+    data: {
         x: number;
         y: number;
-    }>;
+    }[];
 }
 /** @property width - Width of the chart @example { width: 300 } */
  | {
