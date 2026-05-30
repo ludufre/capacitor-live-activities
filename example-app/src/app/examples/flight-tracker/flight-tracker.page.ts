@@ -1,5 +1,5 @@
 import { Component, NgZone } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { LiveActivities, LiveActivitiesOptions } from 'capacitor-live-activities';
@@ -10,7 +10,7 @@ import { FaIconComponent } from '@fortawesome/angular-fontawesome';
   templateUrl: './flight-tracker.page.html',
   styleUrls: ['./flight-tracker.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, FaIconComponent],
+  imports: [IonicModule, FormsModule, FaIconComponent],
 })
 export class FlightTrackerPage {
   activityId: string | null = null;

@@ -1,2 +1,4 @@
+allowBuilds:
+  swiftlint: true
 onlyBuiltDependencies:
   - swiftlint

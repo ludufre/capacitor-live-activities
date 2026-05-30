@@ -1,7 +1,7 @@
 /**
  * Utility type to make complex types more readable in IntelliSense
  */
-declare type Prettify<T> = {
+type Prettify<T> = {
     [K in keyof T]: Prettify<T[K]>;
 } & {};
 /**
@@ -77,7 +77,7 @@ export interface LiveActivitiesPlugin {
 /**
  * Configuration options for starting a Live Activity
  */
-export declare type LiveActivitiesOptions = {
+export type LiveActivitiesOptions = {
     /** Layout configuration for the activity */
     layout: ActivityLayout;
     /** Dynamic Island layout configuration (optional) */
@@ -96,7 +96,7 @@ export declare type LiveActivitiesOptions = {
  * @category Configuration Types
  * @description Defines how the Live Activity behaves, including whether it should be pinned to the lock screen.
  */
-export declare type LiveActivitiesBehavior = {
+export type LiveActivitiesBehavior = {
     /** @property widgetUrl - URL for the widget */
     widgetUrl: string;
     /** @property backgroundTint - Background color for the widget */
@@ -111,7 +111,7 @@ export declare type LiveActivitiesBehavior = {
  * @category Configuration Types
  * @description The root layout element that defines the structure and appearance of a Live Activity.
  */
-export declare type ActivityLayout = LayoutElement;
+export type ActivityLayout = LayoutElement;
 /**
  * Options for updating an existing Live Activity
  * @category Configuration Types
@@ -167,7 +167,7 @@ export interface EndActivityOptions {
  * @category Data Types
  * @description Debugging information containing all active activities and their count.
  */
-declare type ColorString = 'primary' | 'secondary' | 'accent' | 'red' | 'blue' | 'green' | 'yellow' | 'orange' | 'purple' | 'pink' | 'black' | 'white' | 'gray' | 'clear' | `#${string}`;
+type ColorString = 'primary' | 'secondary' | 'accent' | 'red' | 'blue' | 'green' | 'yellow' | 'orange' | 'purple' | 'pink' | 'black' | 'white' | 'gray' | 'clear' | `#${string}`;
 /**
  * Union type representing any layout element with a unique ID
  * @category Layout Elements
@@ -182,13 +182,13 @@ declare type ColorString = 'primary' | 'secondary' | 'accent' | 'red' | 'blue' |
  * };
  * ```
  */
-export declare type LayoutElement = Prettify<LayoutElementContainer | LayoutElementText | LayoutElementImage | LayoutElementProgress | LayoutElementTimer | LayoutElementChart | LayoutElementSegmentedProgress | LayoutElementSpacer | LayoutElementGauge>;
+export type LayoutElement = Prettify<LayoutElementContainer | LayoutElementText | LayoutElementImage | LayoutElementProgress | LayoutElementTimer | LayoutElementChart | LayoutElementSegmentedProgress | LayoutElementSpacer | LayoutElementGauge>;
 /**
  * Base properties that all layout elements can have as individual objects
  * @category Property Objects
  * @description These properties are available for all layout element types and handle basic positioning, transformations, sizing, and visual effects.
  */
-declare type BasePropertyObject = 
+type BasePropertyObject = 
 /** @property offset - Position offset as coordinates or template string @example { offset: { x: 10, y: 20 } } */
 {
     offset: {
@@ -289,8 +289,8 @@ declare type BasePropertyObject =
  * @description Properties specific to container elements, including layout direction, spacing, styling, and background effects.
  * @extends xxx
  */
-declare type ContainerPropertyObject = (BasePropertyObject | ContainerPropertyObjectBase | ContainerPropertyObjectVertical)[] | (BasePropertyObject | ContainerPropertyObjectBase | ContainerPropertyObjectHorizontal)[] | (BasePropertyObject | ContainerPropertyObjectBase | ContainerPropertyObjectStack)[];
-declare type ContainerPropertyObjectBase = 
+type ContainerPropertyObject = (BasePropertyObject | ContainerPropertyObjectBase | ContainerPropertyObjectVertical)[] | (BasePropertyObject | ContainerPropertyObjectBase | ContainerPropertyObjectHorizontal)[] | (BasePropertyObject | ContainerPropertyObjectBase | ContainerPropertyObjectStack)[];
+type ContainerPropertyObjectBase = 
 /** @property spacing - Spacing between child elements @example { spacing: 12 } */
 {
     spacing: number;
@@ -319,7 +319,7 @@ declare type ContainerPropertyObjectBase =
  | {
     alignment: ContainerPropertyObjectStackAlignment;
 };
-declare type ContainerPropertyObjectHorizontal = 
+type ContainerPropertyObjectHorizontal = 
 /** @property direction - Container layout direction @example { direction: "horizontal" / HStack } */
 {
     direction: 'horizontal';
@@ -328,7 +328,7 @@ declare type ContainerPropertyObjectHorizontal =
  | {
     insideAlignment: 'bottom' | 'center' | 'first-text-baseline' | 'last-text-baseline' | 'top';
 };
-declare type ContainerPropertyObjectVertical = 
+type ContainerPropertyObjectVertical = 
 /** @property direction - Container layout direction @example { direction: "vertical" / VStack } */
 {
     direction: 'vertical';
@@ -337,8 +337,8 @@ declare type ContainerPropertyObjectVertical =
  | {
     insideAlignment: 'center' | 'leading' | 'left' | 'list-row-separator-leading' | 'list-row-separator-trailing' | 'list-row-separator-left' | 'list-row-separator-right' | 'trailing' | 'right';
 };
-declare type ContainerPropertyObjectStackAlignment = 'top' | 'top-leading' | 'top-trailing' | 'top-left' | 'top-right' | 'bottom' | 'bottom-left' | 'bottom-right' | 'center' | 'center-first-text-baseline' | 'center-last-text-baseline' | 'leading' | 'leading-first-text-baseline' | 'leading-last-text-baseline' | 'left' | 'left-first-text-baseline' | 'left-last-text-baseline' | 'trailing' | 'trailing-first-text-baseline' | 'trailing-last-text-baseline' | 'right' | 'right-first-text-baseline' | 'right-last-text-baseline';
-declare type ContainerPropertyObjectStack = 
+type ContainerPropertyObjectStackAlignment = 'top' | 'top-leading' | 'top-trailing' | 'top-left' | 'top-right' | 'bottom' | 'bottom-left' | 'bottom-right' | 'center' | 'center-first-text-baseline' | 'center-last-text-baseline' | 'leading' | 'leading-first-text-baseline' | 'leading-last-text-baseline' | 'left' | 'left-first-text-baseline' | 'left-last-text-baseline' | 'trailing' | 'trailing-first-text-baseline' | 'trailing-last-text-baseline' | 'right' | 'right-first-text-baseline' | 'right-last-text-baseline';
+type ContainerPropertyObjectStack = 
 /** @property direction - Container layout direction @example { direction: "stack" / ZStack } */
 {
     direction: 'stack';
@@ -353,7 +353,7 @@ declare type ContainerPropertyObjectStack =
  * @description Properties specific to text elements, including content, typography, styling, and text formatting options.
  * @extends BasePropertyObject
  */
-declare type TextPropertyObject = BasePropertyObject
+type TextPropertyObject = BasePropertyObject
 /** @property text - Text content to display @example { text: "Hello World" } */
  | {
     text: string;
@@ -404,7 +404,7 @@ declare type TextPropertyObject = BasePropertyObject
  * @description Properties specific to image elements, including display options, source configuration, and image styling.
  * @extends BasePropertyObject
  */
-declare type ImagePropertyObject = BasePropertyObject
+type ImagePropertyObject = BasePropertyObject
 /** @property contentMode - How the image should fit within its bounds @example { contentMode: "fit" } */
  | {
     contentMode: 'fit' | 'fill';
@@ -447,7 +447,7 @@ declare type ImagePropertyObject = BasePropertyObject
  * @description Properties specific to progress bar elements, including value configuration, styling, and appearance options.
  * @extends BasePropertyObject
  */
-declare type ProgressPropertyObject = BasePropertyObject
+type ProgressPropertyObject = BasePropertyObject
 /** @property value - Current progress value @example { value: 0.7 } */
  | {
     value: number | string;
@@ -474,7 +474,7 @@ declare type ProgressPropertyObject = BasePropertyObject
  * @description Properties specific to timer elements, including time configuration, display style, and formatting options.
  * @extends BasePropertyObject
  */
-declare type TimerPropertyObject = TextPropertyObject
+type TimerPropertyObject = TextPropertyObject
 /** @property endTime - End time as timestamp in milliseconds @example { endTime: 1749337396616 } */
  | {
     endTime: number;
@@ -502,7 +502,7 @@ declare type TimerPropertyObject = TextPropertyObject
  * };
  * ```
  */
-export declare type LayoutElementContainer = Prettify<{
+export type LayoutElementContainer = Prettify<{
     /** Element type identifier */
     type: 'container';
     /** Container properties as array of property objects */
@@ -523,7 +523,7 @@ export declare type LayoutElementContainer = Prettify<{
  * };
  * ```
  */
-declare type GradientPoint = 
+type GradientPoint = 
 /** @option top - Top edge */
 'top'
 /** @option bottom - Bottom edge */
@@ -560,7 +560,7 @@ declare type GradientPoint =
  * };
  * ```
  */
-export declare type LayoutElementText = Prettify<{
+export type LayoutElementText = Prettify<{
     /** Element type identifier */
     type: 'text';
     /** Text properties as array of property objects */
@@ -584,7 +584,7 @@ export declare type LayoutElementText = Prettify<{
  * };
  * ```
  */
-export declare type LayoutElementImage = Prettify<{
+export type LayoutElementImage = Prettify<{
     /** Element type identifier */
     type: 'image';
     /** Image properties as array of property objects */
@@ -608,7 +608,7 @@ export declare type LayoutElementImage = Prettify<{
  * };
  * ```
  */
-export declare type LayoutElementProgress = Prettify<{
+export type LayoutElementProgress = Prettify<{
     /** Element type identifier */
     type: 'progress';
     /** Progress bar properties as array of property objects */
@@ -631,13 +631,13 @@ export declare type LayoutElementProgress = Prettify<{
  * };
  * ```
  */
-export declare type LayoutElementTimer = Prettify<{
+export type LayoutElementTimer = Prettify<{
     /** Element type identifier */
     type: 'timer';
     /** Timer properties as array of property objects */
     properties: TimerPropertyObject[];
 }>;
-export declare type LayoutElementChart = Prettify<{
+export type LayoutElementChart = Prettify<{
     /** Element type identifier */
     type: 'chart';
     /** Chart properties as array of property objects */
@@ -649,7 +649,7 @@ export declare type LayoutElementChart = Prettify<{
  * @description Properties specific to chart elements, including data series, styling, and chart type.
  * @extends BasePropertyObject
  */
-declare type ChartPropertyObject = BasePropertyObject
+type ChartPropertyObject = BasePropertyObject
 /** @property type - Type of chart (e.g., "line", "bar", "pie") @example { type: "line" } */
  | {
     type: 'line' | 'bar' | 'pie' | 'area' | 'scatter';
@@ -716,7 +716,7 @@ declare type ChartPropertyObject = BasePropertyObject
  * };
  * ```
  */
-export declare type LayoutElementSegmentedProgress = Prettify<{
+export type LayoutElementSegmentedProgress = Prettify<{
     /** Element type identifier */
     type: 'segmented-progress';
     /** Segmented progress bar properties as array of property objects */
@@ -728,7 +728,7 @@ export declare type LayoutElementSegmentedProgress = Prettify<{
  * @description Properties specific to segmented progress bar elements, including segment count, filled segments, spacing, height, corner radius, and colors.
  * @extends BasePropertyObject
  */
-declare type SegmentedProgressPropertyObject = BasePropertyObject
+type SegmentedProgressPropertyObject = BasePropertyObject
 /** @property segments - Total number of segments in the progress bar @example { segments: 5 } */
  | {
     segments: number;
@@ -775,7 +775,7 @@ declare type SegmentedProgressPropertyObject = BasePropertyObject
  * @description Properties specific to spacer elements.
  * @extends BasePropertyObject
  */
-declare type SpacerPropertyObject = BasePropertyObject
+type SpacerPropertyObject = BasePropertyObject
 /** @property minLength - Minimum spacing @example { minLength: 8 } */
  | {
     minLength: number;
@@ -786,7 +786,7 @@ declare type SpacerPropertyObject = BasePropertyObject
  * @description Properties specific to gauge elements, including value configuration, angle settings, styling, and display options.
  * @extends BasePropertyObject
  */
-declare type GaugePropertyObject = BasePropertyObject
+type GaugePropertyObject = BasePropertyObject
 /** @property value - Current value (required) @example { value: 75 } */
  | {
     value: number | string;
@@ -839,7 +839,7 @@ declare type GaugePropertyObject = BasePropertyObject
  * };
  * ```
  */
-export declare type LayoutElementSpacer = Prettify<{
+export type LayoutElementSpacer = Prettify<{
     /** Element type identifier */
     type: 'spacer';
     /** Spacer properties as array of property objects */
@@ -867,7 +867,7 @@ export declare type LayoutElementSpacer = Prettify<{
  * };
  * ```
  */
-export declare type LayoutElementGauge = Prettify<{
+export type LayoutElementGauge = Prettify<{
     /** Element type identifier */
     type: 'gauge';
     /** Gauge properties as array of property objects */
