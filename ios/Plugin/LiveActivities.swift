@@ -11,18 +11,40 @@ import ActivityKit
     @objc public static let shared = LiveActivities()
     
     private var activities: [String: Activity<DynamicActivityAttributes>] = [:]
-    
+
+    /// Assigned by the bridge plugin: forwards every APNs live-activity push
+    /// token emitted by ActivityKit's `pushTokenUpdates` stream as
+    /// `(activityId, hexEncodedToken)`.
+    public var onPushTokenUpdate: ((String, String) -> Void)?
+    private var observedTokenActivityIds = Set<String>()
+
     private override init() {
         super.init()
         let bundleId = Bundle.main.bundleIdentifier ?? "com.app"
         SharedDataManager.shared.appGroupIdentifier = "group.\(bundleId).liveactivities"
     }
-    
+
+    /// Observe the push token stream of an activity exactly once. Both
+    /// `startActivity` and the recovery path funnel through here; the set
+    /// dedupes so repeated syncs never spawn duplicate observer tasks.
+    private func observePushToken(for activity: Activity<DynamicActivityAttributes>, activityId: String) {
+        guard !observedTokenActivityIds.contains(activityId) else { return }
+        observedTokenActivityIds.insert(activityId)
+        Task {
+            for await tokenData in activity.pushTokenUpdates {
+                let token = tokenData.map { String(format: "%02x", $0) }.joined()
+                Logger.viewCycle.error("🔑 Push token updated for activity: \(activityId)")
+                self.onPushTokenUpdate?(activityId, token)
+            }
+        }
+    }
+
     private func syncExistingActivities() async {
         for activity in Activity<DynamicActivityAttributes>.activities {
             let activityId = activity.attributes.activityId
             activities[activityId] = activity
-            
+            observePushToken(for: activity, activityId: activityId)
+
             Logger.viewCycle.error("🔄 Recovered existing activity: \(activityId)")
         }
     }
@@ -59,14 +81,30 @@ import ActivityKit
         )
         
         do {
-            let activity = try Activity.request(
-                attributes: attributes,
-                content: activityContent,
-                pushType: nil
-            )
-            
+            // Request a token-backed activity so remote updates via APNs are
+            // possible (see the 'activityPushToken' listener event). If the
+            // token-backed request fails — e.g. the app has no push
+            // entitlement — fall back to a plain request instead of failing
+            // the start.
+            let activity: Activity<DynamicActivityAttributes>
+            do {
+                activity = try Activity.request(
+                    attributes: attributes,
+                    content: activityContent,
+                    pushType: .token
+                )
+            } catch {
+                Logger.viewCycle.error("⚠️ Token-backed request failed, retrying without push: \(error)")
+                activity = try Activity.request(
+                    attributes: attributes,
+                    content: activityContent,
+                    pushType: nil
+                )
+            }
+
             activities[activityId] = activity
-            
+            observePushToken(for: activity, activityId: activityId)
+
             Logger.viewCycle.error("✅ Started activity with custom ID: \(activityId)")
             Logger.viewCycle.error("🔍 System ID: \(activity.id)")
             Logger.viewCycle.error("📊 Total activities tracked: \(self.activities.count)")
@@ -84,18 +122,16 @@ import ActivityKit
         alertConfig: [String: Any]?,
         behavior: [String: Any]?
     ) async throws {
-        guard let activity = activities[activityId] else {
-            // If not found, try to retrieve from the system
+        // If not tracked in memory (e.g. after an app relaunch), try to
+        // recover from the system, then fall through to the actual update —
+        // previously the recovery path returned without applying the update.
+        if activities[activityId] == nil {
             await syncExistingActivities()
-            
-            // Tentar novamente
-            guard activities[activityId] != nil else {
-                Logger.viewCycle.error("❌ Activity not found: \(activityId)")
-                Logger.viewCycle.error("📊 Available activities: \(self.activities.keys)")
-                throw LiveActivitiesError.activityNotFound
-            }
-            
-            return
+        }
+        guard let activity = activities[activityId] else {
+            Logger.viewCycle.error("❌ Activity not found: \(activityId)")
+            Logger.viewCycle.error("📊 Available activities: \(self.activities.keys)")
+            throw LiveActivitiesError.activityNotFound
         }
         
         if let sharedDefaults = UserDefaults(suiteName: "group.\(Bundle.main.bundleIdentifier ?? "").LiveActivities") {
@@ -133,18 +169,22 @@ import ActivityKit
     @objc public func endActivity(
         activityId: String,
         finalData: [String: Any]?,
-        behavior: [String: Any]?
+        behavior: [String: Any]?,
+        dismissalPolicy: String?,
+        dismissalDate: Date?
     ) async throws {
-        guard let activity = activities[activityId] else {
-            // Tentar recuperar
+        // If not tracked in memory (e.g. after an app relaunch), try to
+        // recover from the system, then fall through to the actual end call —
+        // previously the recovery path returned WITHOUT ending the recovered
+        // activity, so an activity could never be ended once the app process
+        // had been restarted.
+        if activities[activityId] == nil {
             await syncExistingActivities()
-            guard let activity = activities[activityId] else {
-                throw LiveActivitiesError.activityNotFound
-            }
-            
-            return
         }
-        
+        guard let activity = activities[activityId] else {
+            throw LiveActivitiesError.activityNotFound
+        }
+
         // Limpar dados do App Group
         if let sharedDefaults = UserDefaults(suiteName: "group.\(Bundle.main.bundleIdentifier ?? "").LiveActivities") {
             sharedDefaults.removeObject(forKey: "\(activityId)_layout")
@@ -162,12 +202,31 @@ import ActivityKit
             ActivityContent(state: $0, staleDate: nil)
         }
         
+        // Map the caller-selected dismissal policy. "immediate" removes the
+        // ended activity from the Lock Screen right away, "after" keeps it
+        // until the given date (the system caps this at four hours), and the
+        // default keeps Apple's behavior (linger for up to four hours).
+        let policy: ActivityUIDismissalPolicy
+        switch dismissalPolicy {
+        case "immediate":
+            policy = .immediate
+        case "after":
+            if let dismissalDate {
+                policy = .after(dismissalDate)
+            } else {
+                policy = .default
+            }
+        default:
+            policy = .default
+        }
+
         await activity.end(
             finalContent,
-            dismissalPolicy: .default
+            dismissalPolicy: policy
         )
-        
+
         activities.removeValue(forKey: activityId)
+        observedTokenActivityIds.remove(activityId)
         Logger.viewCycle.error("✅ Ended activity: \(activityId)")
     }
     

@@ -224,9 +224,29 @@ await LiveActivities.endActivity({
   activityId: result.activityId,
   data: {
     title: "Activity completed"
-  }
+  },
+  // Optional: how the ended activity leaves the Lock Screen.
+  // 'default' keeps it for up to 4 hours, 'immediate' removes it right away,
+  // 'after' removes it at `dismissalDate` (ms, capped at 4 hours by iOS).
+  dismissalPolicy: "immediate"
 });
 ```
+
+### Remote updates via APNs (push tokens)
+
+Activities are requested with `pushType: .token`, so ActivityKit provides an
+APNs token per activity for remote updates (`apns-push-type: liveactivity`).
+Tokens arrive asynchronously after `startActivity` resolves and can rotate —
+listen for them and forward the latest token to your server:
+
+```typescript
+await LiveActivities.addListener('activityPushToken', ({ activityId, pushToken }) => {
+  // send the hex-encoded token to your backend
+});
+```
+
+If the app lacks a push entitlement, the plugin automatically falls back to
+starting the activity without push support (no token events are emitted).
 
 ## 📚 Examples
 

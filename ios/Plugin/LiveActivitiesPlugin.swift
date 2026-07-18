@@ -22,7 +22,23 @@ public class LiveActivitiesPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "listImages", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "cleanupImages", returnType: CAPPluginReturnPromise)
     ]
-    
+
+    /// Forward ActivityKit push tokens to the web view as 'activityPushToken'
+    /// events ({ activityId, pushToken } — the token is hex-encoded). Tokens
+    /// arrive asynchronously (and can rotate), which is why this is a
+    /// listener event rather than part of the startActivity result.
+    override public func load() {
+        if #available(iOS 16.2, *) {
+            LiveActivities.shared.onPushTokenUpdate = { [weak self] activityId, token in
+                self?.notifyListeners("activityPushToken", data: [
+                    "activityId": activityId,
+                    "pushToken": token
+                ])
+            }
+        }
+    }
+
+
     // MARK: - Compression Analysis
     
     struct CompressionDecision {
@@ -267,13 +283,18 @@ public class LiveActivitiesPlugin: CAPPlugin, CAPBridgedPlugin {
             
             let finalData = call.getObject("data")
             let behavior = call.getObject("behavior")
-            
+            let dismissalPolicy = call.getString("dismissalPolicy")
+            // JS timestamp in ms, like staleDate in startActivity
+            let dismissalDate = call.getDouble("dismissalDate").map { Date(timeIntervalSince1970: $0 / 1000) }
+
             Task {
                 do {
                     try await LiveActivities.shared.endActivity(
                         activityId: activityId,
                         finalData: finalData,
-                        behavior: behavior
+                        behavior: behavior,
+                        dismissalPolicy: dismissalPolicy,
+                        dismissalDate: dismissalDate
                     )
                     
                     await MainActor.run {

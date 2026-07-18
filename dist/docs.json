@@ -182,6 +182,58 @@
         "docs": "Clean up all saved images",
         "complexTypes": [],
         "slug": "cleanupimages"
+      },
+      {
+        "name": "addListener",
+        "signature": "(eventName: 'activityPushToken', listenerFunc: (event: ActivityPushTokenEvent) => void) => any",
+        "parameters": [
+          {
+            "name": "eventName",
+            "docs": "'activityPushToken'",
+            "type": "'activityPushToken'"
+          },
+          {
+            "name": "listenerFunc",
+            "docs": "Callback receiving the activity ID and the hex-encoded APNs token",
+            "type": "(event: ActivityPushTokenEvent) => void"
+          }
+        ],
+        "returns": "any",
+        "tags": [
+          {
+            "name": "param",
+            "text": "eventName 'activityPushToken'"
+          },
+          {
+            "name": "param",
+            "text": "listenerFunc Callback receiving the activity ID and the hex-encoded APNs token"
+          },
+          {
+            "name": "returns",
+            "text": "Promise with a handle to remove the listener"
+          }
+        ],
+        "docs": "Listen for APNs push token updates of Live Activities. Activities are\r\nrequested with `pushType: .token`, so ActivityKit emits a remote-update\r\ntoken for every started (or recovered) activity. Tokens arrive\r\nasynchronously after `startActivity` resolves and can rotate over the\r\nlifetime of an activity — register this listener before starting the\r\nactivity and forward the latest token to your server.",
+        "complexTypes": [
+          "ActivityPushTokenEvent",
+          "PluginListenerHandle"
+        ],
+        "slug": "addlisteneractivitypushtoken-"
+      },
+      {
+        "name": "removeAllListeners",
+        "signature": "() => any",
+        "parameters": [],
+        "returns": "any",
+        "tags": [
+          {
+            "name": "returns",
+            "text": "Promise that resolves when all listeners are removed"
+          }
+        ],
+        "docs": "Remove all native listeners for this plugin",
+        "complexTypes": [],
+        "slug": "removealllisteners"
       }
     ],
     "properties": []
@@ -246,7 +298,7 @@
           "name": "description"
         },
         {
-          "text": "```typescript\nconst updateOptions: UpdateActivityOptions = {\n  activityId: \"activity-123\",\n  data: { progress: 0.75, status: \"In Progress\" },\n  alertConfiguration: {\n    title: \"Progress Update\",\n    body: \"Task is 75% complete\",\n    sound: \"default\"\n  }\n};\n```",
+          "text": "```typescript\r\nconst updateOptions: UpdateActivityOptions = {\r\n  activityId: \"activity-123\",\r\n  data: { progress: 0.75, status: \"In Progress\" },\r\n  alertConfiguration: {\r\n    title: \"Progress Update\",\r\n    body: \"Task is 75% complete\",\r\n    sound: \"default\"\r\n  }\r\n};\r\n```",
           "name": "example"
         }
       ],
@@ -291,7 +343,7 @@
           "name": "description"
         },
         {
-          "text": "```typescript\nconst endOptions: EndActivityOptions = {\n  activityId: \"activity-123\",\n  data: { status: \"Completed\", finalResult: \"Success\" }\n};\n```",
+          "text": "```typescript\r\nconst endOptions: EndActivityOptions = {\r\n  activityId: \"activity-123\",\r\n  data: { status: \"Completed\", finalResult: \"Success\" },\r\n  dismissalPolicy: \"immediate\"\r\n};\r\n```",
           "name": "example"
         }
       ],
@@ -312,6 +364,68 @@
             "Record"
           ],
           "type": "Record<string, any>"
+        },
+        {
+          "name": "dismissalPolicy",
+          "tags": [],
+          "docs": "How the ended activity leaves the Lock Screen (optional).\r\n- 'default': the system keeps the ended activity for up to 4 hours\r\n- 'immediate': the activity is removed right away\r\n- 'after': the activity is removed at `dismissalDate` (capped by the\r\n  system at 4 hours after the activity ended)",
+          "complexTypes": [],
+          "type": "'default' | 'immediate' | 'after' | undefined"
+        },
+        {
+          "name": "dismissalDate",
+          "tags": [],
+          "docs": "Unix timestamp in milliseconds for the 'after' dismissal policy\r\n(ignored for other policies; falls back to 'default' when missing)",
+          "complexTypes": [],
+          "type": "number | undefined"
+        }
+      ]
+    },
+    {
+      "name": "ActivityPushTokenEvent",
+      "slug": "activitypushtokenevent",
+      "docs": "Event payload for the 'activityPushToken' listener",
+      "tags": [
+        {
+          "text": "Data Types",
+          "name": "category"
+        },
+        {
+          "text": "Emitted whenever ActivityKit provides (or rotates) the APNs\r\npush token of a Live Activity. Use the token to send remote updates via\r\nAPNs with the `liveactivity` push type.",
+          "name": "description"
+        }
+      ],
+      "methods": [],
+      "properties": [
+        {
+          "name": "activityId",
+          "tags": [],
+          "docs": "ID of the activity the token belongs to",
+          "complexTypes": [],
+          "type": "string"
+        },
+        {
+          "name": "pushToken",
+          "tags": [],
+          "docs": "Hex-encoded APNs live-activity push token",
+          "complexTypes": [],
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "PluginListenerHandle",
+      "slug": "pluginlistenerhandle",
+      "docs": "",
+      "tags": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "remove",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "() => any"
         }
       ]
     }
@@ -324,7 +438,7 @@
       "docs": "Configuration options for starting a Live Activity",
       "types": [
         {
-          "text": "{\n  /** Layout configuration for the activity */\n  layout: ActivityLayout;\n  /** Dynamic Island layout configuration (optional) */\n  dynamicIslandLayout: DynamicIslandLayout;\n  /** Behavior configuration for the activity */\n  behavior: LiveActivitiesBehavior;\n  /** Dynamic data to be displayed in the activity */\n  data: Record<string, any>;\n  /** Date when the activity becomes stale (optional) */\n  staleDate?: number;\n  /** Relevance score for activity prioritization (optional) */\n  relevanceScore?: number;\n}",
+          "text": "{\r\n  /** Layout configuration for the activity */\r\n  layout: ActivityLayout;\r\n  /** Dynamic Island layout configuration (optional) */\r\n  dynamicIslandLayout: DynamicIslandLayout;\r\n  /** Behavior configuration for the activity */\r\n  behavior: LiveActivitiesBehavior;\r\n  /** Dynamic data to be displayed in the activity */\r\n  data: Record<string, any>;\r\n  /** Date when the activity becomes stale (optional) */\r\n  staleDate?: number;\r\n  /** Relevance score for activity prioritization (optional) */\r\n  relevanceScore?: number;\r\n}",
           "complexTypes": [
             "ActivityLayout",
             "DynamicIslandLayout",
@@ -353,7 +467,7 @@
       "docs": "Union type representing any layout element with a unique ID",
       "types": [
         {
-          "text": "Prettify<\n  | LayoutElementContainer\n  | LayoutElementText\n  | LayoutElementImage\n  | LayoutElementProgress\n  | LayoutElementTimer\n  | LayoutElementChart\n  | LayoutElementSegmentedProgress\n  | LayoutElementSpacer\n  | LayoutElementGauge\n>",
+          "text": "Prettify<\r\n  | LayoutElementContainer\r\n  | LayoutElementText\r\n  | LayoutElementImage\r\n  | LayoutElementProgress\r\n  | LayoutElementTimer\r\n  | LayoutElementChart\r\n  | LayoutElementSegmentedProgress\r\n  | LayoutElementSpacer\r\n  | LayoutElementGauge\r\n>",
           "complexTypes": [
             "Prettify",
             "LayoutElementContainer",
@@ -375,7 +489,7 @@
       "docs": "Utility type to make complex types more readable in IntelliSense",
       "types": [
         {
-          "text": "{\n  [K in keyof T]: Prettify<T[K]>;\n} & {}",
+          "text": "{\r\n  [K in keyof T]: Prettify<T[K]>;\r\n} & {}",
           "complexTypes": [
             "T",
             "Prettify",
@@ -390,7 +504,7 @@
       "docs": "Container element that can hold other layout elements",
       "types": [
         {
-          "text": "Prettify<{\n  /** Element type identifier */\n  type: 'container';\n  /** Container properties as array of property objects */\n  properties?: ContainerPropertyObject;\n  /** Child elements contained within this container */\n  children: LayoutElement[];\n}>",
+          "text": "Prettify<{\r\n  /** Element type identifier */\r\n  type: 'container';\r\n  /** Container properties as array of property objects */\r\n  properties?: ContainerPropertyObject;\r\n  /** Child elements contained within this container */\r\n  children: LayoutElement[];\r\n}>",
           "complexTypes": [
             "Prettify",
             "ContainerPropertyObject",
@@ -786,7 +900,7 @@
           "complexTypes": []
         },
         {
-          "text": "{\n      insideAlignment:\n        | 'center'\n        | 'leading'\n        | 'left'\n        | 'list-row-separator-leading'\n        | 'list-row-separator-trailing'\n        | 'list-row-separator-left'\n        | 'list-row-separator-right'\n        | 'trailing'\n        | 'right';\n    }",
+          "text": "{\r\n      insideAlignment:\r\n        | 'center'\r\n        | 'leading'\r\n        | 'left'\r\n        | 'list-row-separator-leading'\r\n        | 'list-row-separator-trailing'\r\n        | 'list-row-separator-left'\r\n        | 'list-row-separator-right'\r\n        | 'trailing'\r\n        | 'right';\r\n    }",
           "complexTypes": []
         }
       ]
@@ -816,7 +930,7 @@
           "complexTypes": []
         },
         {
-          "text": "{\n      insideAlignment: ContainerPropertyObjectStackAlignment;\n    }",
+          "text": "{\r\n      insideAlignment: ContainerPropertyObjectStackAlignment;\r\n    }",
           "complexTypes": [
             "ContainerPropertyObjectStackAlignment"
           ]
@@ -829,7 +943,7 @@
       "docs": "Text element for displaying text content",
       "types": [
         {
-          "text": "Prettify<{\n  /** Element type identifier */\n  type: 'text';\n  /** Text properties as array of property objects */\n  properties: TextPropertyObject[];\n}>",
+          "text": "Prettify<{\r\n  /** Element type identifier */\r\n  type: 'text';\r\n  /** Text properties as array of property objects */\r\n  properties: TextPropertyObject[];\r\n}>",
           "complexTypes": [
             "Prettify",
             "TextPropertyObject"
@@ -861,7 +975,7 @@
           "complexTypes": []
         },
         {
-          "text": "{\n      fontFamily:\n        | 'caption'\n        | 'title'\n        | 'headline'\n        | 'body'\n        | 'callout'\n        | 'caption2'\n        | 'footnote'\n        | 'largeTitle'\n        | 'subheadline'\n        | 'title2'\n        | 'title3';\n    }",
+          "text": "{\r\n      fontFamily:\r\n        | 'caption'\r\n        | 'title'\r\n        | 'headline'\r\n        | 'body'\r\n        | 'callout'\r\n        | 'caption2'\r\n        | 'footnote'\r\n        | 'largeTitle'\r\n        | 'subheadline'\r\n        | 'title2'\r\n        | 'title3';\r\n    }",
           "complexTypes": []
         },
         {
@@ -902,7 +1016,7 @@
       "docs": "Image element for displaying images from various sources",
       "types": [
         {
-          "text": "Prettify<{\n  /** Element type identifier */\n  type: 'image';\n  /** Image properties as array of property objects */\n  properties: ImagePropertyObject[];\n}>",
+          "text": "Prettify<{\r\n  /** Element type identifier */\r\n  type: 'image';\r\n  /** Image properties as array of property objects */\r\n  properties: ImagePropertyObject[];\r\n}>",
           "complexTypes": [
             "Prettify",
             "ImagePropertyObject"
@@ -967,7 +1081,7 @@
       "docs": "Progress bar element for showing completion progress",
       "types": [
         {
-          "text": "Prettify<{\n  /** Element type identifier */\n  type: 'progress';\n  /** Progress bar properties as array of property objects */\n  properties: ProgressPropertyObject[];\n}>",
+          "text": "Prettify<{\r\n  /** Element type identifier */\r\n  type: 'progress';\r\n  /** Progress bar properties as array of property objects */\r\n  properties: ProgressPropertyObject[];\r\n}>",
           "complexTypes": [
             "Prettify",
             "ProgressPropertyObject"
@@ -1018,7 +1132,7 @@
       "docs": "Timer element for displaying countdown or time information",
       "types": [
         {
-          "text": "Prettify<{\n  /** Element type identifier */\n  type: 'timer';\n  /** Timer properties as array of property objects */\n  properties: TimerPropertyObject[];\n}>",
+          "text": "Prettify<{\r\n  /** Element type identifier */\r\n  type: 'timer';\r\n  /** Timer properties as array of property objects */\r\n  properties: TimerPropertyObject[];\r\n}>",
           "complexTypes": [
             "Prettify",
             "TimerPropertyObject"
@@ -1053,7 +1167,7 @@
       "docs": "",
       "types": [
         {
-          "text": "Prettify<{\n  /** Element type identifier */\n  type: 'chart';\n  /** Chart properties as array of property objects */\n  properties: ChartPropertyObject[];\n}>",
+          "text": "Prettify<{\r\n  /** Element type identifier */\r\n  type: 'chart';\r\n  /** Chart properties as array of property objects */\r\n  properties: ChartPropertyObject[];\r\n}>",
           "complexTypes": [
             "Prettify",
             "ChartPropertyObject"
@@ -1126,7 +1240,7 @@
       "docs": "Segmented Progress bar element for showing progress in segments",
       "types": [
         {
-          "text": "Prettify<{\n  /** Element type identifier */\n  type: 'segmented-progress';\n  /** Segmented progress bar properties as array of property objects */\n  properties: SegmentedProgressPropertyObject[];\n}>",
+          "text": "Prettify<{\r\n  /** Element type identifier */\r\n  type: 'segmented-progress';\r\n  /** Segmented progress bar properties as array of property objects */\r\n  properties: SegmentedProgressPropertyObject[];\r\n}>",
           "complexTypes": [
             "Prettify",
             "SegmentedProgressPropertyObject"
@@ -1199,7 +1313,7 @@
       "docs": "Spacer element for creating flexible spacing between elements",
       "types": [
         {
-          "text": "Prettify<{\n  /** Element type identifier */\n  type: 'spacer';\n  /** Spacer properties as array of property objects */\n  properties?: SpacerPropertyObject[];\n}>",
+          "text": "Prettify<{\r\n  /** Element type identifier */\r\n  type: 'spacer';\r\n  /** Spacer properties as array of property objects */\r\n  properties?: SpacerPropertyObject[];\r\n}>",
           "complexTypes": [
             "Prettify",
             "SpacerPropertyObject"
@@ -1230,7 +1344,7 @@
       "docs": "Gauge element for displaying circular progress indicators",
       "types": [
         {
-          "text": "Prettify<{\n  /** Element type identifier */\n  type: 'gauge';\n  /** Gauge properties as array of property objects */\n  properties: GaugePropertyObject[];\n}>",
+          "text": "Prettify<{\r\n  /** Element type identifier */\r\n  type: 'gauge';\r\n  /** Gauge properties as array of property objects */\r\n  properties: GaugePropertyObject[];\r\n}>",
           "complexTypes": [
             "Prettify",
             "GaugePropertyObject"
@@ -1297,7 +1411,7 @@
       "docs": "Behavior configuration for a Live Activity",
       "types": [
         {
-          "text": "{\n  /** @property widgetUrl - URL for the widget */\n  widgetUrl: string;\n  /** @property backgroundTint - Background color for the widget */\n  backgroundTint?: ColorString;\n  /** @property systemActionForegroundColor - Foreground color for system actions */\n  systemActionForegroundColor?: ColorString;\n  /** @property keyLineTint - Color for the key line */\n  keyLineTint?: ColorString;\n}",
+          "text": "{\r\n  /** @property widgetUrl - URL for the widget */\r\n  widgetUrl: string;\r\n  /** @property backgroundTint - Background color for the widget */\r\n  backgroundTint?: ColorString;\r\n  /** @property systemActionForegroundColor - Foreground color for system actions */\r\n  systemActionForegroundColor?: ColorString;\r\n  /** @property keyLineTint - Color for the key line */\r\n  keyLineTint?: ColorString;\r\n}",
           "complexTypes": [
             "ColorString"
           ]
