@@ -84,18 +84,16 @@ import ActivityKit
         alertConfig: [String: Any]?,
         behavior: [String: Any]?
     ) async throws {
-        guard let activity = activities[activityId] else {
-            // If not found, try to retrieve from the system
+        // If not tracked in memory (e.g. after an app relaunch), try to
+        // recover from the system, then fall through to the actual update —
+        // previously the recovery path returned without applying the update.
+        if activities[activityId] == nil {
             await syncExistingActivities()
-            
-            // Tentar novamente
-            guard activities[activityId] != nil else {
-                Logger.viewCycle.error("❌ Activity not found: \(activityId)")
-                Logger.viewCycle.error("📊 Available activities: \(self.activities.keys)")
-                throw LiveActivitiesError.activityNotFound
-            }
-            
-            return
+        }
+        guard let activity = activities[activityId] else {
+            Logger.viewCycle.error("❌ Activity not found: \(activityId)")
+            Logger.viewCycle.error("📊 Available activities: \(self.activities.keys)")
+            throw LiveActivitiesError.activityNotFound
         }
         
         if let sharedDefaults = UserDefaults(suiteName: "group.\(Bundle.main.bundleIdentifier ?? "").LiveActivities") {
@@ -135,14 +133,16 @@ import ActivityKit
         finalData: [String: Any]?,
         behavior: [String: Any]?
     ) async throws {
-        guard let activity = activities[activityId] else {
-            // Tentar recuperar
+        // If not tracked in memory (e.g. after an app relaunch), try to
+        // recover from the system, then fall through to the actual end call —
+        // previously the recovery path returned WITHOUT ending the recovered
+        // activity, so an activity could never be ended once the app process
+        // had been restarted.
+        if activities[activityId] == nil {
             await syncExistingActivities()
-            guard let activity = activities[activityId] else {
-                throw LiveActivitiesError.activityNotFound
-            }
-            
-            return
+        }
+        guard let activity = activities[activityId] else {
+            throw LiveActivitiesError.activityNotFound
         }
         
         // Limpar dados do App Group
