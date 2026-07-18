@@ -1,3 +1,5 @@
+import type { PluginListenerHandle } from '@capacitor/core';
+
 /**
  * Utility type to make complex types more readable in IntelliSense
  */
@@ -68,6 +70,42 @@ export interface LiveActivitiesPlugin {
    * @returns Promise that resolves when cleanup is complete
    */
   cleanupImages(): Promise<void>;
+
+  /**
+   * Listen for APNs push token updates of Live Activities. Activities are
+   * requested with `pushType: .token`, so ActivityKit emits a remote-update
+   * token for every started (or recovered) activity. Tokens arrive
+   * asynchronously after `startActivity` resolves and can rotate over the
+   * lifetime of an activity — register this listener before starting the
+   * activity and forward the latest token to your server.
+   * @param eventName 'activityPushToken'
+   * @param listenerFunc Callback receiving the activity ID and the hex-encoded APNs token
+   * @returns Promise with a handle to remove the listener
+   */
+  addListener(
+    eventName: 'activityPushToken',
+    listenerFunc: (event: ActivityPushTokenEvent) => void,
+  ): Promise<PluginListenerHandle>;
+
+  /**
+   * Remove all native listeners for this plugin
+   * @returns Promise that resolves when all listeners are removed
+   */
+  removeAllListeners(): Promise<void>;
+}
+
+/**
+ * Event payload for the 'activityPushToken' listener
+ * @category Data Types
+ * @description Emitted whenever ActivityKit provides (or rotates) the APNs
+ * push token of a Live Activity. Use the token to send remote updates via
+ * APNs with the `liveactivity` push type.
+ */
+export interface ActivityPushTokenEvent {
+  /** ID of the activity the token belongs to */
+  activityId: string;
+  /** Hex-encoded APNs live-activity push token */
+  pushToken: string;
 }
 
 /**
@@ -152,7 +190,8 @@ export interface UpdateActivityOptions {
  * ```typescript
  * const endOptions: EndActivityOptions = {
  *   activityId: "activity-123",
- *   data: { status: "Completed", finalResult: "Success" }
+ *   data: { status: "Completed", finalResult: "Success" },
+ *   dismissalPolicy: "immediate"
  * };
  * ```
  */
@@ -161,6 +200,19 @@ export interface EndActivityOptions {
   activityId: string;
   /** Final data for the activity */
   data: Record<string, any>;
+  /**
+   * How the ended activity leaves the Lock Screen (optional).
+   * - 'default': the system keeps the ended activity for up to 4 hours
+   * - 'immediate': the activity is removed right away
+   * - 'after': the activity is removed at `dismissalDate` (capped by the
+   *   system at 4 hours after the activity ended)
+   */
+  dismissalPolicy?: 'default' | 'immediate' | 'after';
+  /**
+   * Unix timestamp in milliseconds for the 'after' dismissal policy
+   * (ignored for other policies; falls back to 'default' when missing)
+   */
+  dismissalDate?: number;
 }
 
 /**
